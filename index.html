@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     DEMOD — Chromatic Tuner  v1.2.0
+     https://github.com/ALH477/demod  |  https://demod.ltd/tuner.html
+     © 2026 ALH477 — BSD-3-Clause
+     Works as a local file (file://) OR served over HTTPS.
+
+     Features in v1.2.0:
+       • Adjustable A4 reference pitch (415–465 Hz) with localStorage persistence
+       • ResizeObserver + throttled heavy canvas draws for better performance
+       • Spectrum shows detected fundamental frequency marker line
+       • Uses native device sampleRate (removed forced 44100 Hz)
+       • Gentler pitch smoothing + stronger visual in-tune feedback
+       • Version badge in footer + updated JSON-LD / SEO / FAQ
+  ══════════════════════════════════════════════════════════════════════════ -->
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<title>DEMOD — Free Online Chromatic Tuner v1.2.0 | Adjustable A4</title>
+<meta name="description" content="DEMOD is a free, accurate chromatic tuner that works directly in your browser — no app download needed. Tune guitar, bass, violin, ukulele, and any instrument with ≤5¢ pitch accuracy via your microphone. Adjustable A4 (415–465 Hz), 4 visual themes. Works on iPhone, Android, and desktop.">
+<meta name="keywords" content="chromatic tuner, online tuner, guitar tuner, bass tuner, violin tuner, ukulele tuner, free tuner, browser tuner, microphone tuner, pitch detection, adjustable A4, concert pitch, tune guitar online, instrument tuner, tuner app, chromatic pitch tuner, DEMOD tuner, accurate tuner, free guitar tuner online, no download tuner">
+<meta name="author" content="ALH477">
+<meta name="application-name" content="DEMOD Chromatic Tuner">
+<meta name="rating" content="general">
+<meta name="language" content="en">
+<meta name="revisit-after" content="7 days">
+
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large">
+<meta name="bingbot" content="index, follow">
+
+<link rel="canonical" href="https://demod.ltd/tuner.html">
+<link rel="alternate" hreflang="en" href="https://demod.ltd/tuner.html">
+<link rel="alternate" hreflang="x-default" href="https://demod.ltd/tuner.html">
+
+<meta property="og:type"             content="website">
+<meta property="og:site_name"        content="DEMOD Chromatic Tuner">
+<meta property="og:locale"           content="en_US">
+<meta property="og:url"              content="https://demod.ltd/tuner.html">
+<meta property="og:title"            content="DEMOD — Free Online Chromatic Tuner v1.2.0">
+<meta property="og:description"      content="Tune any instrument in your browser — no app needed. Guitar, bass, violin, ukulele and more. ≤5¢ accuracy, adjustable A4 (415–465 Hz), 4 visual themes.">
+<meta property="og:image"            content="https://demod.ltd/og-image.png">
+<meta property="og:image:secure_url" content="https://demod.ltd/og-image.png">
+<meta property="og:image:type"       content="image/png">
+<meta property="og:image:width"      content="1200">
+<meta property="og:image:height"     content="630">
+<meta property="og:image:alt"        content="DEMOD chromatic tuner showing a green phosphor arc meter with the note A4 detected at 440Hz, in-tune indicator glowing green">
+
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:site"        content="@ALH477">
+<meta name="twitter:creator"     content="@ALH477">
+<meta name="twitter:title"       content="DEMOD — Free Online Chromatic Tuner v1.2.0">
+<meta name="twitter:description" content="Tune any instrument in your browser — no app needed. Guitar, bass, violin, ukulele & more. ≤5¢ accuracy. Adjustable A4 reference pitch.">
+<meta name="twitter:image"       content="https://demod.ltd/og-image.png">
+<meta name="twitter:image:alt"   content="DEMOD chromatic tuner — phosphor green arc meter showing A4 at 440Hz in tune">
+<meta name="twitter:label1"      content="Accuracy">
+<meta name="twitter:data1"       content="≤5 cents">
+<meta name="twitter:label2"      content="Platform">
+<meta name="twitter:data2"       content="Browser — no install">
+
+<meta name="theme-color" content="#080e08" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#080e08">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DEMOD Tuner">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="msapplication-TileColor" content="#080e08">
+<meta name="msapplication-config" content="none">
+<meta name="format-detection" content="telephone=no">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23080e08'/%3E%3Cpath d='M10 46 A28 28 0 0 1 54 46' fill='none' stroke='%231a3a1a' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M10 46 A28 28 0 0 1 25 20' fill='none' stroke='%23ff6432' stroke-width='6' stroke-linecap='round' opacity='.7'/%3E%3Cpath d='M29 17 A28 28 0 0 1 35 17' fill='none' stroke='%2339ff14' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M39 20 A28 28 0 0 1 54 46' fill='none' stroke='%23ffe014' stroke-width='6' stroke-linecap='round' opacity='.7'/%3E%3Cline x1='32' y1='46' x2='42' y2='20' stroke='%2339ff14' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='46' r='4' fill='%231e4a1e' stroke='%2339ff14' stroke-width='1.5'/%3E%3Ccircle cx='32' cy='46' r='1.8' fill='%2339ff14'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32"  href="https://demod.ltd/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16"  href="https://demod.ltd/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180"     href="https://demod.ltd/apple-touch-icon.png">
+<link rel="manifest"                              href="https://demod.ltd/manifest.json">
+
+<link rel="preconnect"   href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect"   href="https://fonts.gstatic.com"    crossorigin>
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" crossorigin>
+<link rel="stylesheet"   href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap"
+      media="print" onload="this.media='all'">
+<noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap">
+</noscript>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://demod.ltd/tuner.html#app",
+      "name": "DEMOD Chromatic Tuner",
+      "alternateName": ["DEMOD Tuner", "DEMOD", "Chromatic Tuner Online"],
+      "description": "DEMOD is a free, accurate chromatic tuner that runs entirely in your web browser with no installation required. It uses your microphone and autocorrelation signal processing to detect pitch with ≤5 cent accuracy. Adjustable A4 reference pitch (415–465 Hz). Supports guitar, bass, violin, ukulele, cello, mandolin, banjo, and all chromatic instruments. Features 4 visual themes, a physics-based arc needle, spectrum waterfall, and oscilloscope.",
+      "url": "https://demod.ltd/tuner.html",
+      "applicationCategory": "MusicApplication",
+      "applicationSubCategory": "Instrument Tuner",
+      "operatingSystem": ["Web Browser", "iOS Safari", "Android Chrome", "Windows", "macOS", "Linux"],
+      "browserRequirements": "Requires a browser with Web Audio API and microphone access (Chrome 47+, Firefox 44+, Safari 11+, Edge 12+)",
+      "permissions": "microphone",
+      "isAccessibleForFree": true,
+      "price": "0",
+      "priceCurrency": "USD",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+      "featureList": [
+        "Chromatic pitch detection for all 12 notes",
+        "≤5 cent accuracy via autocorrelation with parabolic interpolation",
+        "Adjustable A4 reference pitch (415–465 Hz) with localStorage persistence",
+        "Works on guitar, bass, violin, ukulele, cello, and all instruments",
+        "No installation or download required",
+        "Works as a local HTML file or served over HTTPS",
+        "4 visual themes: PHOSPHOR, CINDER, PLASMA, ARCTIC",
+        "Physics-based arc needle with spring-damper simulation",
+        "Real-time spectrum waterfall display with fundamental marker",
+        "Oscilloscope waveform view",
+        "VU meter with peak hold",
+        "Works on iPhone, Android, and all desktop browsers"
+      ],
+      "screenshot": "https://demod.ltd/og-image.png",
+      "image": "https://demod.ltd/og-image.png",
+      "author":    { "@type": "Person", "@id": "https://github.com/ALH477", "name": "ALH477", "url": "https://github.com/ALH477" },
+      "publisher": { "@type": "Person", "@id": "https://github.com/ALH477", "name": "ALH477", "url": "https://github.com/ALH477" },
+      "datePublished": "2026-01-01",
+      "dateModified": "2026-02-27",
+      "license": "https://opensource.org/licenses/BSD-3-Clause",
+      "codeRepository": "https://github.com/ALH477/demod",
+      "downloadUrl": "https://demod.ltd/tuner.html",
+      "softwareVersion": "1.2.0",
+      "sameAs": "https://github.com/ALH477/demod",
+      "inLanguage": "en",
+      "keywords": "chromatic tuner, guitar tuner, bass tuner, violin tuner, online tuner, free tuner, pitch detection, adjustable A4, instrument tuner"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://demod.ltd/tuner.html#webpage",
+      "url": "https://demod.ltd/tuner.html",
+      "name": "DEMOD — Free Online Chromatic Tuner v1.2.0 | Tune Guitar, Bass, Violin & More",
+      "description": "DEMOD is a free, accurate chromatic tuner that works directly in your browser — no app download needed.",
+      "isPartOf": { "@id": "https://demod.ltd/tuner.html#website" },
+      "about": { "@id": "https://demod.ltd/tuner.html#app" },
+      "datePublished": "2026-01-01", "dateModified": "2026-02-27",
+      "inLanguage": "en",
+      "potentialAction": { "@type": "UseAction", "target": "https://demod.ltd/tuner.html" }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://demod.ltd/tuner.html#website",
+      "url": "https://demod.ltd/tuner.html",
+      "name": "DEMOD Chromatic Tuner",
+      "description": "Free online chromatic tuner for guitar, bass, violin, ukulele and all instruments",
+      "inLanguage": "en",
+      "publisher": { "@id": "https://github.com/ALH477" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [ { "@type": "ListItem", "position": 1, "name": "DEMOD Tuner", "item": "https://demod.ltd/tuner.html" } ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Is DEMOD chromatic tuner free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. DEMOD is completely free, open-source (BSD-3-Clause), and requires no account or installation. Just open it in any modern browser, or save the HTML file and open it locally." } },
+        { "@type": "Question", "name": "What instruments can I tune with DEMOD?",
+          "acceptedAnswer": { "@type": "Answer", "text": "DEMOD is a chromatic tuner that detects any pitch from 40Hz to 1600Hz. This covers guitar (all standard and alternate tunings), bass guitar, violin, viola, cello, ukulele, mandolin, banjo, and any acoustic or electric instrument you can play near your microphone." } },
+        { "@type": "Question", "name": "Does DEMOD work on iPhone and Android?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. DEMOD is fully responsive and works on iPhone (Safari) and Android (Chrome). It adapts its layout for portrait and landscape phone screens." } },
+        { "@type": "Question", "name": "How accurate is DEMOD?",
+          "acceptedAnswer": { "@type": "Answer", "text": "DEMOD achieves ≤5 cent accuracy using autocorrelation pitch detection with parabolic interpolation on each 8192-sample frame. This is professional-grade accuracy suitable for stage and studio use." } },
+        { "@type": "Question", "name": "Can I change the reference pitch (A4)?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Tap the A4 value in the footer to set any frequency between 415 Hz and 465 Hz. The setting is saved automatically." } },
+        { "@type": "Question", "name": "Can I use DEMOD offline?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Save the tuner.html file to your computer and open it directly in Chrome or Firefox. It works completely offline — all audio processing runs locally in your browser." } }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-mono:    'Share Tech Mono', 'Courier New', 'Lucida Console', 'Consolas', monospace;
+  --font-display: 'Orbitron', 'Trebuchet MS', 'Arial Narrow', 'Arial', sans-serif;
+
+  --bg:        #080e08;
+  --bg-alt:    #0d160d;
+  --border:    #1a3a1a;
+  --border-hi: #2e6e2e;
+  --primary:   #39ff14;
+  --accent:    #1ec810;
+  --muted:     #4a8a4a;
+  --dim:       #1e4a1e;
+  --text:      #c8ffc8;
+  --in-tune:   #39ff14;
+  --flat:      #ff6432;
+  --sharp:     #ffe014;
+  --warn:      #ffaa00;
+  --glow:      rgba(57,255,20,0.18);
+  --glow-str:  rgba(57,255,20,0.45);
+  --intune-bg: rgba(57,255,20,0.07);
+
+  --sat: env(safe-area-inset-top,    0px);
+  --sar: env(safe-area-inset-right,  0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left,   0px);
+}
+
+.theme-cinder {
+  --bg:#100804; --bg-alt:#180c06; --border:#3a1a08; --border-hi:#6e3010;
+  --primary:#ff9420; --accent:#e07010; --muted:#8a5020; --dim:#4a2808;
+  --text:#ffd898; --in-tune:#a0ff40; --flat:#ff4020; --sharp:#ffc820; --warn:#ff6400;
+  --glow:rgba(255,148,32,0.18); --glow-str:rgba(255,148,32,0.45); --intune-bg:rgba(160,255,64,0.07);
+}
+.theme-plasma {
+  --bg:#080416; --bg-alt:#0c0820; --border:#2a1050; --border-hi:#5a2090;
+  --primary:#d040ff; --accent:#a020e0; --muted:#7840a0; --dim:#3a1060;
+  --text:#e0b0ff; --in-tune:#40ffcc; --flat:#ff4080; --sharp:#ffe040; --warn:#ffb040;
+  --glow:rgba(208,64,255,0.18); --glow-str:rgba(208,64,255,0.45); --intune-bg:rgba(64,255,204,0.07);
+}
+.theme-arctic {
+  --bg:#080c12; --bg-alt:#0c1220; --border:#1a2e50; --border-hi:#2a5090;
+  --primary:#60b4ff; --accent:#3a90e0; --muted:#4070a0; --dim:#183060;
+  --text:#c0d8ff; --in-tune:#40ffb0; --flat:#ff6080; --sharp:#ffe060; --warn:#ffb040;
+  --glow:rgba(96,180,255,0.18); --glow-str:rgba(96,180,255,0.45); --intune-bg:rgba(64,255,176,0.07);
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  touch-action: pan-y;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  height: 100vh;
+  height: 100dvh;
+  width: 100vw;
+  width: 100dvw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-top:    var(--sat);
+  padding-right:  var(--sar);
+  padding-bottom: var(--sab);
+  padding-left:   var(--sal);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+  pointer-events: none;
+  z-index: 1000;
+}
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.58) 100%);
+  pointer-events: none;
+  z-index: 999;
+}
+
+#unsupported-overlay {
+  display: none;
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: var(--bg);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  padding: 40px;
+  text-align: center;
+}
+#unsupported-overlay.show { display: flex; }
+#unsupported-overlay h2 {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 4vw, 26px);
+  color: var(--primary);
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 12px var(--glow-str);
+}
+#unsupported-overlay p {
+  color: var(--muted);
+  font-size: clamp(12px, 2vw, 15px);
+  max-width: 420px;
+  line-height: 1.7;
+  letter-spacing: 0.05em;
+}
+#unsupported-overlay code {
+  color: var(--primary);
+  background: var(--dim);
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-alt);
+  flex-shrink: 0;
+  gap: 8px;
+  min-height: 48px;
+}
+.logo {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(13px, 3.5vw, 20px);
+  letter-spacing: 0.22em;
+  color: var(--primary);
+  text-shadow: 0 0 10px var(--glow-str), 0 0 26px var(--glow);
+  white-space: nowrap;
+  user-select: none;
+}
+.logo-sub {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.5em;
+  letter-spacing: 0.15em;
+  margin-left: 10px;
+}
+@media (max-width: 420px) { .logo-sub { display: none; } }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+#palette-row { display: flex; gap: 4px; }
+@media (max-width: 600px) { #palette-row { display: none; } }
+
+.palette-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 4px 8px;
+  min-height: 36px;
+  border: 1px solid var(--border-hi);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s, background 0.12s, box-shadow 0.12s;
+  text-transform: uppercase;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 2px;
+}
+.palette-btn:hover, .palette-btn.active {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--dim);
+  box-shadow: 0 0 8px var(--glow);
+}
+
+#palette-cycle-btn {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  min-width: 48px;
+  min-height: 44px;
+  border: 1px solid var(--border-hi);
+  background: var(--dim);
+  color: var(--muted);
+  cursor: pointer;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1;
+  border-radius: 2px;
+  transition: color 0.12s, border-color 0.12s;
+}
+#palette-cycle-btn .pcb-label { font-size: 7px; letter-spacing: 0.15em; }
+@media (max-width: 600px) { #palette-cycle-btn { display: flex; } }
+
+.mic-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  padding: 8px 18px;
+  min-height: 44px;
+  min-width: 90px;
+  border: 1px solid var(--primary);
+  background: var(--dim);
+  color: var(--primary);
+  cursor: pointer;
+  transition: opacity 0.12s, box-shadow 0.2s, border-color 0.15s;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+.mic-btn.idle-pulse {
+  animation: mic-idle-pulse 2.2s ease-in-out infinite;
+}
+@keyframes mic-idle-pulse {
+  0%,100% { box-shadow: 0 0 6px var(--glow), 0 0 0 0 transparent; }
+  50%      { box-shadow: 0 0 18px var(--glow-str), 0 0 28px var(--glow); }
+}
+.mic-btn:active  { opacity: 0.75; }
+.mic-btn.waiting {
+  border-color: var(--muted);
+  color: var(--muted);
+  cursor: wait;
+  animation: none;
+}
+.mic-btn.live {
+  border-color: var(--primary);
+  box-shadow: 0 0 14px var(--glow);
+  animation: mic-live-pulse 2s ease-in-out infinite;
+}
+@keyframes mic-live-pulse {
+  0%,100% { box-shadow: 0 0 8px var(--glow); }
+  50%      { box-shadow: 0 0 22px var(--glow-str); }
+}
+
+main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  overflow: hidden;
+}
+
+@media (min-width: 600px) {
+  main {
+    grid-template-columns: 1fr 260px;
+    grid-template-rows: 1fr auto;
+    gap: 1px;
+    background: var(--border);
+  }
+  #zone-note   { grid-column: 1; grid-row: 1; }
+  #zone-needle { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; }
+  #zone-bottom {
+    grid-column: 1 / -1; grid-row: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    height: clamp(70px, 13vh, 120px);
+  }
+}
+
+@media (max-width: 599px) {
+  main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 1px;
+    background: var(--border);
+  }
+  #zone-needle {
+    grid-column: 1; grid-row: 1;
+    display: flex; flex-direction: column;
+    height: min(46vw, 200px);
+  }
+  #zone-note   { grid-column: 1; grid-row: 2; }
+  #zone-bottom {
+    grid-column: 1; grid-row: 3;
+    display: grid;
+    grid-template-columns: 1fr;
+    height: clamp(55px, 16vw, 80px);
+  }
+  #zone-scope  { display: none; }
+}
+
+@media (max-width: 900px) and (max-height: 500px) {
+  main {
+    grid-template-columns: 1fr 220px;
+    grid-template-rows: 1fr auto;
+    gap: 1px;
+    background: var(--border);
+  }
+  #zone-note   { grid-column: 1; grid-row: 1; }
+  #zone-needle { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; }
+  #zone-bottom {
+    grid-column: 1 / -1; grid-row: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    height: 50px;
+  }
+}
+
+.panel {
+  background: var(--bg);
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+}
+
+#zone-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(8px, 2vw, 20px);
+  position: relative;
+}
+
+#idle-msg {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+#idle-msg.has-signal { opacity: 0; pointer-events: none; }
+
+.idle-state { display: none; flex-direction: column; align-items: center; gap: 10px; }
+.idle-state.active { display: flex; }
+
+#idle-prestart .idle-arrow {
+  font-size: clamp(28px, 6vw, 48px);
+  color: var(--primary);
+  opacity: 0.6;
+  animation: arrow-bounce 1.8s ease-in-out infinite;
+  line-height: 1;
+}
+@keyframes arrow-bounce {
+  0%,100% { opacity: 0.4; transform: translateX(-4px); }
+  50%      { opacity: 0.9; transform: translateX(4px); }
+}
+#idle-prestart .idle-cta {
+  font-size: clamp(11px, 2.5vw, 15px);
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+#idle-prestart .idle-hint {
+  font-size: clamp(8px, 1.8vw, 10px);
+  letter-spacing: 0.15em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+#idle-waiting .idle-spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--dim);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#idle-listening .idle-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: idle-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 12px var(--primary);
+}
+@keyframes idle-pulse {
+  0%,100% { opacity: 0.2; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.3); }
+}
+
+#idle-error .idle-error-icon {
+  font-size: clamp(20px, 4vw, 32px);
+  color: var(--flat);
+  line-height: 1;
+}
+#idle-error .idle-error-text {
+  font-size: clamp(9px, 2vw, 12px);
+  color: var(--flat);
+  letter-spacing: 0.1em;
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.5;
+}
+.idle-text {
+  font-size: clamp(9px, 2.5vw, 12px);
+  letter-spacing: 0.22em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.idle-retry-btn {
+  pointer-events: all;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  padding: 6px 18px;
+  min-height: 36px;
+  border: 1px solid var(--flat);
+  background: transparent;
+  color: var(--flat);
+  cursor: pointer;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 2px;
+  transition: background 0.12s, box-shadow 0.12s;
+  margin-top: 4px;
+}
+.idle-retry-btn:hover { background: rgba(255,100,50,0.1); box-shadow: 0 0 8px rgba(255,100,50,0.3); }
+
+.note-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 20px);
+  max-width: 100%;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.note-name-wrap.visible { opacity: 1; }
+
+#canvas-note {
+  display: block;
+  flex-shrink: 0;
+  width:  clamp(60px, 22vw, 180px);
+  height: clamp(50px, 18vw, 140px);
+}
+
+.note-meta {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 1.2vw, 12px);
+  min-width: 0;
+}
+@media (max-width: 599px) {
+  .note-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 14px;
+    align-items: start;
+  }
+  #status-badge { grid-column: 1 / -1; }
+}
+
+.meta-row { display: flex; flex-direction: column; min-width: 0; }
+.meta-label {
+  font-size: clamp(7px, 1.5vw, 9px);
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.meta-value {
+  font-size: clamp(12px, 2.8vw, 22px);
+  color: var(--text);
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.meta-value.accent { color: var(--accent); }
+.meta-value.big {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 5vw, 38px);
+  font-weight: 700;
+}
+
+#cents-display {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 4.5vw, 32px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: color 0.1s;
+}
+
+#status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: clamp(4px, 1vw, 6px) clamp(8px, 2vw, 14px);
+  font-size: clamp(9px, 2vw, 11px);
+  letter-spacing: 0.18em;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--muted);
+  transition: all 0.2s;
+  white-space: nowrap;
+  border-radius: 2px;
+}
+#status-badge.intune {
+  border-color: var(--in-tune);
+  color: var(--in-tune);
+  background: var(--intune-bg);
+  box-shadow: 0 0 12px var(--glow);
+}
+#status-badge::before { content: '●'; font-size: 7px; }
+#status-badge.intune::before { color: var(--in-tune); }
+
+#zone-needle { background: var(--bg); }
+#canvas-needle { display: block; width: 100%; height: 100%; }
+
+#zone-bottom { background: var(--border); }
+.panel-bottom { background: var(--bg); overflow: hidden; }
+#canvas-spectrum, #canvas-scope { display: block; width: 100%; height: 100%; }
+
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-alt);
+  font-size: clamp(8px, 2vw, 10px);
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  flex-shrink: 0;
+  min-height: 26px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.device-name {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  transition: color 0.2s;
+}
+.device-name.error { color: var(--flat); }
+.footer-keys {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.footer-keys b { color: var(--primary); font-weight: normal; }
+@media (max-width: 480px) { .key-desktop { display: none; } }
+.swipe-hint {
+  display: none;
+  color: var(--dim);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+@media (max-width: 599px) { .swipe-hint { display: block; } }
+
+.seo-hidden {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.a4-control {
+  font-family: var(--font-mono);
+  font-size: clamp(8px, 2vw, 10px);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.12s;
+  user-select: none;
+}
+.a4-control:hover { color: var(--primary); border-color: var(--primary); box-shadow: 0 0 8px var(--glow); }
+.a4-control input {
+  width: 58px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  padding: 0;
+  outline: none;
+}
+@media (max-width: 480px) { .a4-control { font-size: 9px; } }
+</style>
+</head>
+<body>
+
+<div class="seo-hidden" aria-hidden="true">
+  <h1>DEMOD — Free Online Chromatic Tuner v1.2.0</h1>
+  <p>DEMOD is a free chromatic tuner that works in your browser or as a local HTML file. No download, no app, no account required. Tune your guitar, bass, violin, ukulele, cello, or any instrument with professional ≤5 cent accuracy. Now with adjustable A4 reference pitch.</p>
+  <h2>Free Online Guitar Tuner</h2>
+  <p>Tune your guitar online for free. Works with standard tuning (EADGBE), drop D, open tunings, and any custom tuning.</p>
+  <h2>Chromatic Tuner for All Instruments</h2>
+  <p>Tune guitar, bass guitar, violin, viola, cello, double bass, ukulele, mandolin, banjo, piano, wind instruments, brass, and vocals.</p>
+  <h2>Works on iPhone and Android</h2>
+  <p>DEMOD is fully mobile-responsive. Open it in Safari on iPhone or Chrome on Android.</p>
+  <h2>No Download Required — Works Offline Too</h2>
+  <p>Save the HTML file and open it locally. All audio processing happens in your browser.</p>
+</div>
+
+<div id="unsupported-overlay" role="alertdialog" aria-labelledby="unsupported-title" aria-modal="true">
+  <h2 id="unsupported-title">BROWSER NOT SUPPORTED</h2>
+  <p>DEMOD requires the <strong>Web Audio API</strong> and microphone access.<br>
+  Please use <code>Chrome 47+</code>, <code>Firefox 44+</code>, <code>Safari 11+</code>, or <code>Edge 12+</code>.</p>
+  <p style="margin-top:8px;font-size:0.85em;">
+    On iOS, open in <strong>Safari</strong> — third-party browsers on iPhone cannot access the microphone.
+  </p>
+</div>
+
+<noscript>
+  <style>
+    .noscript-msg {
+      position: fixed;
+      top: 0; right: 0; bottom: 0; left: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+      background: #080e08; color: #c8ffc8;
+      font-family: 'Courier New', monospace;
+      text-align: center; padding: 40px; z-index: 9999;
+    }
+    .noscript-msg h1 { color: #39ff14; font-size: 24px; letter-spacing: .2em; }
+    .noscript-msg p  { color: #4a8a4a; font-size: 14px; max-width: 400px; line-height: 1.6; }
+  </style>
+  <div class="noscript-msg">
+    <h1>DEMOD</h1>
+    <p>DEMOD requires JavaScript for real-time audio processing. Please enable JavaScript to use this chromatic tuner.</p>
+  </div>
+</noscript>
+
+<header role="banner">
+  <div class="logo" aria-label="DEMOD Chromatic Tuner">
+    DEMOD<span class="logo-sub">Chromatic Tuner</span>
+  </div>
+  <div class="header-right">
+    <div id="palette-row" role="group" aria-label="Visual palette">
+      <button class="palette-btn active" data-theme="" data-idx="0">PHOSPHOR</button>
+      <button class="palette-btn" data-theme="cinder" data-idx="1">CINDER</button>
+      <button class="palette-btn" data-theme="plasma" data-idx="2">PLASMA</button>
+      <button class="palette-btn" data-theme="arctic" data-idx="3">ARCTIC</button>
+    </div>
+    <button id="palette-cycle-btn" aria-label="Cycle visual palette">
+      <span id="palette-name-mobile" class="pcb-label">PHOS</span>
+      <span aria-hidden="true">▣</span>
+    </button>
+    <button class="mic-btn idle-pulse" id="mic-btn"
+            aria-label="Start microphone and begin tuning"
+            aria-pressed="false">▶ START</button>
+  </div>
+</header>
+
+<main role="main" aria-label="Chromatic tuner">
+
+  <div class="panel" id="zone-needle" role="img" aria-label="Tuning arc meter">
+    <canvas id="canvas-needle" aria-hidden="true"></canvas>
+  </div>
+
+  <div class="panel" id="zone-note" role="region" aria-label="Detected note">
+
+    <div id="idle-msg" aria-live="off">
+
+      <div class="idle-state active" id="idle-prestart">
+        <div class="idle-arrow" aria-hidden="true">▶</div>
+        <div class="idle-cta">tap START to begin</div>
+        <div class="idle-hint">microphone required</div>
+      </div>
+
+      <div class="idle-state" id="idle-waiting">
+        <div class="idle-spinner" aria-hidden="true"></div>
+        <div class="idle-text">allow microphone access</div>
+      </div>
+
+      <div class="idle-state" id="idle-listening">
+        <div class="idle-dot" aria-hidden="true"></div>
+        <div class="idle-text">play a note</div>
+      </div>
+
+      <div class="idle-state" id="idle-error" role="alert">
+        <div class="idle-error-icon" aria-hidden="true">⚠</div>
+        <div class="idle-error-text" id="idle-error-msg"></div>
+        <button class="idle-retry-btn" id="retry-btn"
+                aria-label="Retry microphone access">retry</button>
+      </div>
+
+    </div>
+
+    <div class="note-name-wrap" id="note-wrap">
+      <canvas id="canvas-note" aria-hidden="true"></canvas>
+      <div class="note-meta">
+        <div class="meta-row">
+          <span class="meta-label">freq</span>
+          <span class="meta-value accent" id="freq-display">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">target</span>
+          <span class="meta-value" id="target-display">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">note</span>
+          <span class="meta-value big" id="note-display">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">cents</span>
+          <span id="cents-display">—</span>
+        </div>
+        <div id="status-badge" aria-live="polite" aria-atomic="true">NO SIGNAL</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="zone-bottom" role="region" aria-label="Audio displays">
+    <div class="panel-bottom">
+      <canvas id="canvas-spectrum" role="img" aria-label="Frequency spectrum"></canvas>
+    </div>
+    <div class="panel-bottom" id="zone-scope">
+      <canvas id="canvas-scope" role="img" aria-label="Waveform oscilloscope"></canvas>
+    </div>
+  </div>
+
+</main>
+
+<footer role="contentinfo">
+  <span class="device-name" id="device-name" aria-live="polite">no input selected</span>
+
+  <span class="a4-control" id="a4-control" title="Click or tap to change reference pitch">
+    A4 <input type="number" id="a4-input" value="440" step="0.1" min="415" max="465"> Hz
+  </span>
+
+  <div class="footer-keys" role="complementary" aria-label="Controls">
+    <span class="swipe-hint">← swipe palette →</span>
+    <span class="key-desktop"><b>TAB</b> palette</span>
+    <span class="key-desktop"><b>SPACE</b> start/stop</span>
+    <span class="key-desktop" style="color:var(--muted)">v1.2.0</span>
+  </div>
+</footer>
+
+<script>
+'use strict';
+
+const A4_DEFAULT = 440;
+let REFERENCE_FREQ = parseFloat(localStorage.getItem('demod_a4')) || A4_DEFAULT;
+
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FFT_SIZE   = 8192;
+const SILENCE    = 0.007;
+const THEMES     = ['', 'cinder', 'plasma', 'arctic'];
+const PAL_LABELS = ['PHOS', 'CIND', 'PLAS', 'ARCT'];
+
+let APP_STATE = 'ready';
+
+function setAppState(state, errorMsg) {
+  APP_STATE = state;
+  const btn     = document.getElementById('mic-btn');
+  const devEl   = document.getElementById('device-name');
+  const idleEl  = document.getElementById('idle-msg');
+  const noteWrap= document.getElementById('note-wrap');
+
+  ['idle-prestart','idle-waiting','idle-listening','idle-error'].forEach(id => {
+    document.getElementById(id).classList.remove('active');
+  });
+
+  switch (state) {
+    case 'ready':
+      document.getElementById('idle-prestart').classList.add('active');
+      idleEl.classList.remove('has-signal');
+      noteWrap.classList.remove('visible');
+      btn.textContent = '▶\u00A0START';
+      btn.classList.remove('waiting', 'live');
+      btn.classList.add('idle-pulse');
+      btn.disabled = false;
+      btn.setAttribute('aria-pressed', 'false');
+      btn.setAttribute('aria-label', 'Start microphone and begin tuning');
+      devEl.className = 'device-name';
+      devEl.textContent = 'no input selected';
+      break;
+
+    case 'waiting':
+      document.getElementById('idle-waiting').classList.add('active');
+      idleEl.classList.remove('has-signal');
+      noteWrap.classList.remove('visible');
+      btn.textContent = '…';
+      btn.classList.remove('idle-pulse', 'live');
+      btn.classList.add('waiting');
+      btn.disabled = true;
+      devEl.textContent = 'requesting access…';
+      break;
+
+    case 'live':
+      document.getElementById('idle-listening').classList.add('active');
+      btn.textContent = '■\u00A0STOP';
+      btn.classList.remove('idle-pulse', 'waiting');
+      btn.classList.add('live');
+      btn.disabled = false;
+      btn.setAttribute('aria-pressed', 'true');
+      btn.setAttribute('aria-label', 'Stop microphone');
+      break;
+
+    case 'error':
+      document.getElementById('idle-error').classList.add('active');
+      document.getElementById('idle-error-msg').textContent = errorMsg || 'Unknown error';
+      idleEl.classList.remove('has-signal');
+      noteWrap.classList.remove('visible');
+      btn.textContent = '▶\u00A0START';
+      btn.classList.remove('waiting', 'live');
+      btn.classList.add('idle-pulse');
+      btn.disabled = false;
+      btn.setAttribute('aria-pressed', 'false');
+      btn.setAttribute('aria-label', 'Start microphone and begin tuning');
+      devEl.className = 'device-name error';
+      devEl.textContent = errorMsg || 'error';
+      setTimeout(() => {
+        if (APP_STATE === 'error') setAppState('ready');
+      }, 8000);
+      break;
+  }
+}
+
+const S = {
+  live: false, audioCtx: null, analyser: null, scriptNode: null, stream: null,
+  smoothMidi: null, freq: null, _silentFrames: 0,
+  needleAngle: -Math.PI / 2, needleVel: 0,
+  vuLevel: 0, vuPeak: 0, vuPeakTimer: 0,
+  timeDomainBuf: null,
+};
+
+let themeIdx = 0;
+
+const mqlMobile = window.matchMedia('(max-width: 599px)');
+
+const _cvCache  = {};
+let   _cvDirty  = true;
+const CV_KEYS   = [
+  '--bg','--bg-alt','--border','--border-hi','--primary','--accent',
+  '--muted','--dim','--text','--in-tune','--flat','--sharp','--warn',
+  '--glow','--glow-str','--intune-bg'
+];
+function invalidateCvCache() { _cvDirty = true; }
+function warmCvCache() {
+  if (!_cvDirty) return;
+  const s = getComputedStyle(document.documentElement);
+  for (const k of CV_KEYS) _cvCache[k] = s.getPropertyValue(k).trim();
+  _cvDirty = false;
+}
+const cv = k => { warmCvCache(); return _cvCache[k] || ''; };
+
+const f2m = f => 69 + 12 * Math.log2(f / REFERENCE_FREQ);
+const m2f = m => REFERENCE_FREQ * Math.pow(2, (m - 69) / 12);
+
+function parseNote(midi) {
+  const r = Math.round(midi);
+  return {
+    name:  NOTE_NAMES[((r % 12) + 12) % 12],
+    oct:   Math.floor((r - 12) / 12),
+    cents: (midi - r) * 100,
+    midi:  r,
+  };
+}
+
+function detectPitch(buf, sr) {
+  const n = buf.length;
+  let rms = 0;
+  for (let i = 0; i < n; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / n);
+  if (rms < SILENCE) return null;
+
+  const minL = Math.floor(sr / 1600);
+  const maxL = Math.floor(sr / 40);
+  let best = -1, bestV = -Infinity;
+  for (let lag = minL; lag <= maxL; lag++) {
+    let s = 0;
+    for (let i = 0; i < n - lag; i++) s += buf[i] * buf[i + lag];
+    s /= (n - lag);
+    if (s > bestV) { bestV = s; best = lag; }
+  }
+  if (best < 0 || bestV < SILENCE * 0.05) return null;
+
+  if (best > minL && best < maxL) {
+    const ac = l => { let s = 0; for (let i = 0; i < n - l; i++) s += buf[i] * buf[i + l]; return s / (n - l); };
+    const y0 = ac(best - 1), y1 = ac(best), y2 = ac(best + 1);
+    const d = 2 * (2 * y1 - y0 - y2);
+    if (Math.abs(d) > 1e-9) return sr / (best + (y0 - y2) / d);
+  }
+  return sr / best;
+}
+
+const GLYPHS = {
+  'C':[[0,1,3,3,1],[1,3,0,0,0],[3,2,0,0,0],[3,2,0,0,0],[3,2,0,0,0],[1,3,0,0,0],[0,1,3,3,1]],
+  'D':[[3,3,3,1,0],[3,2,0,3,1],[3,2,0,0,3],[3,2,0,0,3],[3,2,0,0,3],[3,2,0,3,1],[3,3,3,1,0]],
+  'E':[[3,3,3,3,3],[3,2,0,0,0],[3,2,0,0,0],[3,3,3,3,0],[3,2,0,0,0],[3,2,0,0,0],[3,3,3,3,3]],
+  'F':[[3,3,3,3,3],[3,2,0,0,0],[3,2,0,0,0],[3,3,3,3,0],[3,2,0,0,0],[3,2,0,0,0],[3,2,0,0,0]],
+  'G':[[0,1,3,3,1],[1,3,0,0,0],[3,2,0,0,0],[3,2,0,3,3],[3,2,0,0,3],[1,3,0,1,3],[0,1,3,3,2]],
+  'A':[[0,0,3,0,0],[0,1,3,1,0],[1,3,0,3,1],[3,2,0,2,3],[3,3,3,3,3],[3,2,0,2,3],[3,2,0,2,3]],
+  'B':[[3,3,3,2,0],[3,2,0,3,1],[3,2,0,1,3],[3,3,3,3,0],[3,2,0,0,3],[3,2,0,0,3],[3,3,3,3,1]],
+  '#':[[0,1,0,1,0],[0,1,0,1,0],[3,3,3,3,3],[0,1,0,1,0],[3,3,3,3,3],[0,1,0,1,0],[0,1,0,1,0]],
+};
+
+function drawNoteGlyph(canvas, noteName, inTune, cents) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  if (!W || !H) return;
+  const needW = Math.round(W * dpr), needH = Math.round(H * dpr);
+  if (canvas.width !== needW || canvas.height !== needH) {
+    canvas.width = needW; canvas.height = needH;
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const chars = noteName.split('').filter(c => GLYPHS[c]);
+  if (!chars.length) return;
+
+  const GW = 5, GH = 7, GAP = 1;
+  const totalCols = chars.length * GW + (chars.length - 1) * GAP;
+  const px = Math.max(2, Math.floor(Math.min(W / (totalCols + 1), H / (GH + 1))));
+  const ox = (W - totalCols * px) / 2;
+  const oy = (H - GH * px) / 2;
+
+  const bright = inTune ? cv('--in-tune') : cents < 0 ? cv('--flat') : cv('--sharp');
+  const colors = [null, cv('--dim'), cv('--muted'), bright];
+
+  ctx.save();
+  ctx.shadowColor = bright; ctx.shadowBlur = px * 3; ctx.globalAlpha = 0.3;
+  chars.forEach((ch, ci) => {
+    const g = GLYPHS[ch], gox = ox + ci * (GW + GAP) * px;
+    for (let r = 0; r < GH; r++)
+      for (let c = 0; c < GW; c++)
+        if (g[r][c] === 3) { ctx.fillStyle = bright; ctx.fillRect(gox + c*px, oy + r*px, px, px); }
+  });
+  ctx.restore();
+
+  chars.forEach((ch, ci) => {
+    const g = GLYPHS[ch], gox = ox + ci * (GW + GAP) * px;
+    for (let r = 0; r < GH; r++)
+      for (let c = 0; c < GW; c++) {
+        const v = g[r][c];
+        if (!v) continue;
+        ctx.fillStyle = colors[v];
+        ctx.fillRect(gox + c*px, oy + r*px, px - 1, px - 1);
+      }
+  });
+}
+
+const ARC_HALF = Math.PI * 0.55;
+const ARC_C    = -Math.PI / 2;
+const ARC_S    = ARC_C - ARC_HALF;
+const ARC_E    = ARC_C + ARC_HALF;
+
+function drawNeedle(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  if (!W || !H) return;
+  if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
+    canvas.width = W * dpr; canvas.height = H * dpr;
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const bgC       = cv('--bg'),      borderC  = cv('--border'),
+        borderHiC = cv('--border-hi'), dimC   = cv('--dim'),
+        inTuneC   = cv('--in-tune'), flatC    = cv('--flat'),
+        sharpC    = cv('--sharp'),   warnC    = cv('--warn'),
+        primaryC  = cv('--primary');
+
+  const cx = W / 2, cy = H * 0.92;
+  const R  = Math.min(W * 0.46, H * 0.92, 240);
+
+  ctx.fillStyle = bgC; ctx.fillRect(0, 0, W, H);
+
+  const zR = R * 0.77, zW = R * 0.13;
+  const band = (f0, f1, col, a = 0.3) => {
+    const a1 = ARC_S + (ARC_E - ARC_S) * f0, a2 = ARC_S + (ARC_E - ARC_S) * f1;
+    ctx.beginPath();
+    ctx.arc(cx, cy, zR + zW / 2, a1, a2);
+    ctx.arc(cx, cy, zR - zW / 2, a2, a1, true);
+    ctx.closePath();
+    ctx.fillStyle = col; ctx.globalAlpha = a; ctx.fill(); ctx.globalAlpha = 1;
+  };
+  band(0, 0.35, flatC, 0.25);
+  band(0.42, 0.58, inTuneC, 0.22);
+  band(0.65, 1, sharpC, 0.25);
+
+  ctx.beginPath(); ctx.arc(cx, cy, R * 0.77, ARC_S, ARC_E);
+  ctx.strokeStyle = borderC; ctx.lineWidth = 1.5; ctx.stroke();
+
+  [-50, -25, 0, 25, 50].forEach(cents => {
+    const frac = (cents + 50) / 100;
+    const a = ARC_S + (ARC_E - ARC_S) * frac;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * R * 0.65, cy + Math.sin(a) * R * 0.65);
+    ctx.lineTo(cx + Math.cos(a) * R * 0.88, cy + Math.sin(a) * R * 0.88);
+    ctx.strokeStyle = cents === 0 ? borderHiC : dimC;
+    ctx.lineWidth   = cents === 0 ? 1.5 : 0.8;
+    ctx.stroke();
+    const lx = cx + Math.cos(a) * R * 0.57, ly = cy + Math.sin(a) * R * 0.57;
+    ctx.fillStyle = dimC;
+    ctx.font = `${Math.max(7, R * 0.065)}px 'Share Tech Mono','Courier New',monospace`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(cents === 0 ? '0' : (cents > 0 ? `+${cents}` : `${cents}`), lx, ly);
+  });
+
+  for (let c = -40; c <= 40; c += 10) {
+    if (c % 25 === 0) continue;
+    const frac = (c + 50) / 100, a = ARC_S + (ARC_E - ARC_S) * frac;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * R * 0.73, cy + Math.sin(a) * R * 0.73);
+    ctx.lineTo(cx + Math.cos(a) * R * 0.83, cy + Math.sin(a) * R * 0.83);
+    ctx.strokeStyle = dimC; ctx.lineWidth = 0.6; ctx.stroke();
+  }
+
+  const hasSig = S.smoothMidi !== null;
+  const note   = hasSig ? parseNote(S.smoothMidi) : null;
+  const inTune = note ? Math.abs(note.cents) <= 5 : false;
+  const nColor = hasSig ? (inTune ? inTuneC : note.cents < 0 ? flatC : sharpC) : dimC;
+  const na = S.needleAngle;
+  const nx = cx + Math.cos(na) * R * 0.88, ny = cy + Math.sin(na) * R * 0.88;
+
+  if (hasSig) {
+    ctx.save(); ctx.shadowColor = nColor; ctx.shadowBlur = inTune ? 28 : 16;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(nx, ny);
+    ctx.strokeStyle = nColor; ctx.lineWidth = 2.5; ctx.stroke(); ctx.restore();
+  }
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(nx, ny);
+  ctx.strokeStyle = hasSig ? nColor : dimC; ctx.lineWidth = hasSig ? 1.8 : 0.7; ctx.stroke();
+
+  if (hasSig) {
+    ctx.beginPath(); ctx.arc(nx, ny, R * 0.026, 0, Math.PI * 2);
+    ctx.fillStyle = nColor; ctx.shadowColor = nColor; ctx.shadowBlur = 12; ctx.fill(); ctx.shadowBlur = 0;
+  }
+
+  ctx.beginPath(); ctx.arc(cx, cy, R * 0.048, 0, Math.PI * 2); ctx.fillStyle = borderHiC; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, R * 0.024, 0, Math.PI * 2); ctx.fillStyle = hasSig ? nColor : dimC; ctx.fill();
+
+  const vuY = H - 10, vuW = W * 0.68, vuX = (W - vuW) / 2, vuH = 5;
+  ctx.fillStyle = borderC; ctx.fillRect(vuX, vuY, vuW, vuH);
+  const g = ctx.createLinearGradient(vuX, 0, vuX + vuW, 0);
+  g.addColorStop(0, inTuneC); g.addColorStop(0.6, inTuneC); g.addColorStop(0.85, warnC); g.addColorStop(1, flatC);
+  ctx.fillStyle = g; ctx.fillRect(vuX, vuY, S.vuLevel * vuW, vuH);
+  if (S.vuPeak > 0.01) { ctx.fillStyle = primaryC; ctx.fillRect(vuX + S.vuPeak * vuW - 1, vuY - 1, 2, vuH + 2); }
+  ctx.fillStyle = dimC;
+  ctx.font = `8px 'Share Tech Mono','Courier New',monospace`;
+  ctx.textAlign = 'center'; ctx.fillText('VU', W / 2, vuY - 3);
+}
+
+function drawSpectrum(canvas) {
+  if (!S.analyser) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  if (!W || !H) return;
+  if (canvas.width !== W * dpr || canvas.height !== H * dpr) { canvas.width = W * dpr; canvas.height = H * dpr; }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = cv('--bg'); ctx.fillRect(0, 0, W, H);
+
+  const data = new Uint8Array(S.analyser.frequencyBinCount);
+  S.analyser.getByteFrequencyData(data);
+  const sr = S.audioCtx.sampleRate, bufLen = S.analyser.frequencyBinCount;
+  const bins = Math.min(bufLen, Math.floor(W));
+  const loF = 80, hiF = Math.min(sr / 2, 8000);
+
+  for (let i = 0; i < bins; i++) {
+    const lf = Math.log(loF) + (Math.log(hiF) - Math.log(loF)) * (i / bins);
+    const freq = Math.exp(lf);
+    const bin = Math.min(Math.floor(freq / (sr / 2) * bufLen), bufLen - 1);
+    const v = data[bin] / 255, bH = v * H * 0.9;
+    if (bH < 1) continue;
+    const g = ctx.createLinearGradient(0, H, 0, H - bH);
+    g.addColorStop(0, cv('--dim')); g.addColorStop(0.55, cv('--primary')); g.addColorStop(1, cv('--warn'));
+    ctx.fillStyle = g; ctx.fillRect(i * (W / bins), H - bH, Math.max(1, W / bins - 0.5), bH);
+  }
+
+  if (S.freq && S.smoothMidi !== null) {
+    const sr = S.audioCtx.sampleRate;
+    const bin = Math.floor(S.freq / (sr / 2) * bufLen);
+    const x = Math.max(0, Math.min(W - 1, Math.floor(bin / bufLen * W)));
+    ctx.strokeStyle = cv('--in-tune');
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = cv('--in-tune');
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = cv('--in-tune');
+    ctx.font = `9px ${cv('--font-mono')}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(S.freq.toFixed(1), x, 18);
+  }
+
+  ctx.fillStyle = cv('--dim');
+  ctx.font = `8px 'Share Tech Mono','Courier New',monospace`;
+  ctx.textAlign = 'left'; ctx.fillText('SPECTRUM', 5, 10);
+}
+
+function drawScope(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  if (!W || !H) return;
+  if (canvas.width !== W * dpr || canvas.height !== H * dpr) { canvas.width = W * dpr; canvas.height = H * dpr; }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = cv('--bg'); ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = cv('--border'); ctx.lineWidth = 0.5;
+  [0.25, 0.5, 0.75].forEach(y => { ctx.beginPath(); ctx.moveTo(0, y * H); ctx.lineTo(W, y * H); ctx.stroke(); });
+
+  if (S.analyser) {
+    if (!S.timeDomainBuf || S.timeDomainBuf.length !== S.analyser.fftSize)
+      S.timeDomainBuf = new Float32Array(S.analyser.fftSize);
+    S.analyser.getFloatTimeDomainData(S.timeDomainBuf);
+
+    const buf = S.timeDomainBuf;
+    let start = 0;
+    for (let i = 1; i < buf.length - W; i++) { if (buf[i - 1] < 0 && buf[i] >= 0) { start = i; break; } }
+
+    const hasSig = S.smoothMidi !== null;
+    const note   = hasSig ? parseNote(S.smoothMidi) : null;
+    const inTune = note ? Math.abs(note.cents) <= 5 : false;
+    const lC = hasSig ? (inTune ? cv('--in-tune') : note.cents < 0 ? cv('--flat') : cv('--sharp')) : cv('--dim');
+    const samples = Math.min(W * 2, buf.length - start);
+
+    ctx.beginPath();
+    for (let i = 0; i < W; i++) {
+      const v = buf[Math.min(start + Math.floor(i / W * samples), buf.length - 1)];
+      const y = (1 - (v + 1) / 2) * H;
+      i === 0 ? ctx.moveTo(i, y) : ctx.lineTo(i, y);
+    }
+    if (hasSig) {
+      ctx.save(); ctx.shadowColor = lC; ctx.shadowBlur = 6;
+      ctx.strokeStyle = lC; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+    } else { ctx.strokeStyle = lC; ctx.lineWidth = 0.7; ctx.stroke(); }
+  }
+
+  ctx.fillStyle = cv('--dim');
+  ctx.font = `8px 'Share Tech Mono','Courier New',monospace`;
+  ctx.textAlign = 'left'; ctx.fillText('SCOPE', 5, 10);
+}
+
+function updateNeedle(dt) {
+  const target = S.smoothMidi !== null
+    ? ARC_S + (ARC_E - ARC_S) * Math.max(0, Math.min(1, (parseNote(S.smoothMidi).cents + 50) / 100))
+    : ARC_C;
+  const k = 28, d = 7.5;
+  S.needleVel   += (k * (target - S.needleAngle) - d * S.needleVel) * dt;
+  S.needleAngle += S.needleVel * dt;
+}
+
+function updateDOM() {
+  if (APP_STATE !== 'live') return;
+
+  const hasSig  = S.smoothMidi !== null;
+  const idleEl  = document.getElementById('idle-msg');
+  const noteWrap= document.getElementById('note-wrap');
+
+  if (hasSig) {
+    idleEl.classList.add('has-signal');
+    noteWrap.classList.add('visible');
+
+    const n      = parseNote(S.smoothMidi);
+    const inTune = Math.abs(n.cents) <= 5;
+    const tgt    = m2f(n.midi);
+    const cStr   = (n.cents >= 0 ? '+' : '') + n.cents.toFixed(1) + '¢';
+    const cCol   = inTune ? 'var(--in-tune)' : n.cents < 0 ? 'var(--flat)' : 'var(--sharp)';
+
+    document.getElementById('freq-display').textContent   = `${S.freq.toFixed(2)} Hz`;
+    document.getElementById('target-display').textContent = `${tgt.toFixed(2)} Hz`;
+    document.getElementById('note-display').textContent   = `${n.name}${n.oct}`;
+    document.getElementById('cents-display').textContent  = cStr;
+    document.getElementById('cents-display').style.color  = cCol;
+
+    const badge = document.getElementById('status-badge');
+    if (inTune) { badge.textContent = '  IN TUNE'; badge.className = 'intune'; }
+    else { badge.textContent = n.cents < 0 ? '♭  TUNE UP' : '♯  TUNE DOWN'; badge.className = ''; }
+
+    const noteZone = document.getElementById('zone-note');
+    const nc = document.getElementById('canvas-note');
+    const zW = noteZone.offsetWidth, zH = noteZone.offsetHeight;
+    const isMobile = mqlMobile.matches;
+    nc.style.width  = Math.floor(zW * (isMobile ? 0.38 : 0.50)) + 'px';
+    nc.style.height = Math.floor(zH * (isMobile ? 0.70 : 0.78)) + 'px';
+    drawNoteGlyph(nc, n.name, inTune, n.cents);
+
+  } else {
+    idleEl.classList.remove('has-signal');
+    noteWrap.classList.remove('visible');
+  }
+}
+
+let lastT = 0;
+let lastHeavyDraw = 0;
+
+function loop(ts) {
+  const dt = Math.min((ts - lastT) / 1000, 0.05);
+  lastT = ts;
+
+  updateNeedle(dt);
+  drawNeedle(document.getElementById('canvas-needle'));
+
+  const now = performance.now();
+  if (now - lastHeavyDraw > 33) {
+    drawSpectrum(document.getElementById('canvas-spectrum'));
+    drawScope(document.getElementById('canvas-scope'));
+    lastHeavyDraw = now;
+  }
+
+  updateDOM();
+  requestAnimationFrame(loop);
+}
+
+async function startAudio() {
+  if (APP_STATE === 'waiting' || APP_STATE === 'live') return;
+
+  const proto = location.protocol;
+  const isLocalOrSecure = proto === 'https:' || proto === 'file:'
+    || location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+    || location.hostname === '[::1]';
+  if (!isLocalOrSecure) {
+    setAppState('error', 'Needs HTTPS — visit demod.ltd/tuner.html');
+    return;
+  }
+
+  const gum = (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+    ? constraints => navigator.mediaDevices.getUserMedia(constraints)
+    : navigator.getUserMedia
+      ? constraints => new Promise((resolve, reject) => navigator.getUserMedia(constraints, resolve, reject))
+      : null;
+
+  if (!gum) {
+    setAppState('error', 'Microphone not available in this browser');
+    return;
+  }
+
+  setAppState('waiting');
+
+  try {
+    const stream = await gum({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+
+    S.stream   = stream;
+    S.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    if (S.audioCtx.state === 'suspended') await S.audioCtx.resume();
+
+    const src = S.audioCtx.createMediaStreamSource(stream);
+
+    S.analyser = S.audioCtx.createAnalyser();
+    S.analyser.fftSize = 4096;
+    S.analyser.smoothingTimeConstant = 0.75;
+    src.connect(S.analyser);
+
+    const proc = S.audioCtx.createScriptProcessor(FFT_SIZE, 1, 1);
+    proc.onaudioprocess = e => {
+      const buf = e.inputBuffer.getChannelData(0);
+      const sr  = S.audioCtx.sampleRate;
+
+      let sq = 0; for (let i = 0; i < buf.length; i++) sq += buf[i] * buf[i];
+      const vu = Math.min(1, Math.sqrt(sq / buf.length) * 6);
+      S.vuLevel = vu > S.vuLevel ? S.vuLevel * 0.3 + vu * 0.7 : S.vuLevel * 0.88;
+      if (S.vuLevel > S.vuPeak) { S.vuPeak = S.vuLevel; S.vuPeakTimer = 90; }
+      else if (--S.vuPeakTimer <= 0) S.vuPeak = Math.max(0, S.vuPeak - 0.008);
+
+      const f = detectPitch(buf, sr);
+      if (f && f > 20 && f < 8000) {
+        const m = f2m(f);
+        S.smoothMidi = S.smoothMidi === null ? m : 0.35 * m + 0.65 * S.smoothMidi;
+        S.freq = m2f(S.smoothMidi);
+        S._silentFrames = 0;
+      } else {
+        if (++S._silentFrames > 3) { S.smoothMidi = null; S.freq = null; S._silentFrames = 0; }
+      }
+    };
+
+    src.connect(proc); proc.connect(S.audioCtx.destination);
+    S.scriptNode = proc;
+    S.live = true;
+
+    const lbl = (stream.getAudioTracks()[0] && stream.getAudioTracks()[0].label) || 'microphone';
+    document.getElementById('device-name').textContent = lbl;
+    document.getElementById('device-name').className = 'device-name';
+    setAppState('live');
+
+  } catch (err) {
+    S.live = false;
+    try { if (S.scriptNode) S.scriptNode.disconnect(); } catch(_){}
+    try { if (S.analyser)   S.analyser.disconnect();   } catch(_){}
+    try { if (S.audioCtx)   S.audioCtx.close();        } catch(_){}
+    try { if (S.stream)     S.stream.getTracks().forEach(t => t.stop()); } catch(_){}
+    S.scriptNode = S.analyser = S.audioCtx = S.stream = null;
+
+    let msg;
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      msg = 'Permission denied — allow mic in browser settings';
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      msg = 'No microphone found — connect one and retry';
+    } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+      msg = 'Mic in use by another app — close it and retry';
+    } else if (err.name === 'OverconstrainedError') {
+      msg = 'Microphone constraints not supported — retry';
+    } else if (proto === 'file:') {
+      msg = 'Mic blocked on file:// — try Chrome or serve via localhost';
+    } else {
+      msg = err.message || 'Microphone unavailable';
+    }
+    setAppState('error', msg);
+  }
+}
+
+function stopAudio() {
+  if (!S.live) return;
+  try { if (S.scriptNode) S.scriptNode.disconnect(); } catch(_){}
+  try { if (S.analyser)   S.analyser.disconnect();   } catch(_){}
+  try { if (S.audioCtx)   S.audioCtx.close();        } catch(_){}
+  try { if (S.stream)     S.stream.getTracks().forEach(t => t.stop()); } catch(_){}
+  S.scriptNode = S.analyser = S.audioCtx = S.stream = null;
+  S.live = false; S.smoothMidi = null; S.freq = null; S.vuLevel = 0; S.vuPeak = 0;
+  document.getElementById('status-badge').textContent = 'NO SIGNAL';
+  document.getElementById('status-badge').className   = '';
+  setAppState('ready');
+}
+
+function setTheme(theme, idx) {
+  document.body.className = theme ? `theme-${theme}` : '';
+  invalidateCvCache();
+  themeIdx = idx;
+  document.querySelectorAll('.palette-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.theme === theme)
+  );
+  document.getElementById('palette-name-mobile').textContent = PAL_LABELS[idx];
+}
+
+function cycleTheme(dir) {
+  const ni = ((themeIdx + (dir || 1)) % THEMES.length + THEMES.length) % THEMES.length;
+  setTheme(THEMES[ni], ni);
+}
+
+let touchX0 = null;
+document.addEventListener('touchstart',  e => { touchX0 = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchcancel', () => { touchX0 = null; }, { passive: true });
+document.addEventListener('touchend',    e => {
+  if (touchX0 === null) return;
+  const dx = e.changedTouches[0].clientX - touchX0;
+  touchX0 = null;
+  if (Math.abs(dx) > 60) cycleTheme(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Tab')   { e.preventDefault(); cycleTheme(1); }
+  if (e.key === ' ')     { e.preventDefault(); S.live ? stopAudio() : startAudio(); }
+  if (e.key === 'Escape' && S.live) stopAudio();
+});
+
+document.getElementById('mic-btn').addEventListener('click', () => S.live ? stopAudio() : startAudio());
+document.getElementById('retry-btn').addEventListener('click', startAudio);
+document.getElementById('palette-cycle-btn').addEventListener('click', () => cycleTheme(1));
+document.querySelectorAll('.palette-btn').forEach(btn =>
+  btn.addEventListener('click', () => setTheme(btn.dataset.theme, parseInt(btn.dataset.idx, 10)))
+);
+
+function updateA4Display() {
+  const input = document.getElementById('a4-input');
+  if (input) input.value = REFERENCE_FREQ.toFixed(1);
+}
+
+function saveA4(val) {
+  val = Number(val);
+  if (!isNaN(val) && val >= 415 && val <= 465) {
+    REFERENCE_FREQ = val;
+    localStorage.setItem('demod_a4', val);
+    updateA4Display();
+    if (S.smoothMidi !== null) S.smoothMidi = null;
+  } else {
+    updateA4Display(); // revert to valid value
+  }
+}
+
+const a4Input = document.getElementById('a4-input');
+a4Input.value = REFERENCE_FREQ.toFixed(1);
+a4Input.addEventListener('change', () => saveA4(a4Input.value));
+a4Input.addEventListener('blur',   () => saveA4(a4Input.value));
+
+const resizeObserver = new ResizeObserver(() => {
+  requestAnimationFrame(() => {
+    drawNeedle(document.getElementById('canvas-needle'));
+    drawSpectrum(document.getElementById('canvas-spectrum'));
+    drawScope(document.getElementById('canvas-scope'));
+    const noteC = document.getElementById('canvas-note');
+    if (noteC && S.smoothMidi !== null) {
+      const n = parseNote(S.smoothMidi);
+      drawNoteGlyph(noteC, n.name, Math.abs(n.cents) <= 5, n.cents);
+    }
+  });
+});
+
+(function checkSupport() {
+  const hasAudio  = !!(window.AudioContext || window.webkitAudioContext);
+  const hasCanvas = !!document.createElement('canvas').getContext;
+  if (!hasAudio || !hasCanvas) {
+    document.getElementById('unsupported-overlay').classList.add('show');
+    return;
+  }
+
+  ['canvas-needle','canvas-note','canvas-spectrum','canvas-scope'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) resizeObserver.observe(el);
+  });
+
+  S.needleAngle = ARC_C;
+  updateA4Display();
+  requestAnimationFrame(ts => { lastT = ts; loop(ts); });
+})();
+</script>
+</body>
+</html>

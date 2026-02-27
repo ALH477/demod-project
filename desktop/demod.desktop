@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=DEMOD
+GenericName=Chromatic Tuner
+Comment=Demodulate the signal. Find the note.
+Exec=demod
+Icon=demod
+Terminal=false
+Type=Application
+Categories=Audio;Music;Utility;
+Keywords=tuner;chromatic;pitch;music;guitar;audio;signal;dsp;
+StartupNotify=true
+StartupWMClass=demod
